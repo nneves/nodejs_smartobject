@@ -1,0 +1,15 @@
+{
+  "description": "Node.js Intelligent Window SmartObject WebApplication",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "serialport": "^1.4.6"
+  },
+  "devDependenices": {},
+  "scripts": {
+    "start": "sudo node app.js 8080"
+  },
+  "name": "iWindowSmartObject",
+  "author": "Nelson Neves",
+  "homepage": "http://www.botdream.com"
+}
