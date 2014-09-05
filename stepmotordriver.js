@@ -192,6 +192,10 @@ function moveto (destpos) {
 	spWrite("id="+hwid+":moveto:"+destpos.toString()+";");
 };
 
+function movetofeedback (destpos, feedback) {
+	spWrite("id="+hwid+":movetofeedback:"+destpos.toString()+":"+feedback.toString()+";");
+};
+
 //------------------------------------------------------------------
 // export
 //------------------------------------------------------------------
@@ -203,6 +207,7 @@ module.exports = {
 	directionClockWise: 1,
 	directionCounterClockWise: -1,	
 	setSpeedAcceleration: setspeedacl,
-	moveToPosition: moveto
+	moveToPosition: moveto,
+	moveToPositionFeedback: movetofeedback
 };
 //------------------------------------------------------------------

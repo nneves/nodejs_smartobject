@@ -20,3 +20,10 @@ setTimeout( function () {
 	stepmotor.moveToPosition(1000);
 }, 3*5000);
 
+setTimeout( function () {
+	stepmotor.moveToPositionFeedback(20000, 1000);
+}, 4*5000);
+
+setTimeout( function () {
+	stepmotor.moveToPositionFeedback(0, 1000);
+}, 7*5000);
