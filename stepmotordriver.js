@@ -11,6 +11,7 @@ var	emulatedStepMotorResponseTime = 50;
 var flagLowLvlDebug = true;
 
 var hwid = "a1";
+var maxPosition = 50000; // max number of steps required to open window
 
 //------------------------------------------------------------------
 // public functions
@@ -62,6 +63,10 @@ function initialize (iconfig) {
         // calling StepMotor emulator initializaion messages when using /dev/null
         emulateStepMotorInitMsg();
 	});
+};
+
+function spInitialized () {
+	return spFlagInit;
 };
 
 //------------------------------------------------------------------
@@ -196,11 +201,29 @@ function movetofeedback (destpos, feedback) {
 	spWrite("id="+hwid+":movetofeedback:"+destpos.toString()+":"+feedback.toString()+";");
 };
 
+function getcurrpospercent () {
+	spWrite("id="+hwid+":getcurrpos:_;");
+	// requires callback to be defined
+	var tempValue = 50000;
+	var ncurpos = tempValue*100/maxPosition;
+
+	return ncurpos;
+};
+
+// id=a1:movetopercent:100;
+// id=a1:movetopercent:0;
+function movetopercent (destpospercent) {
+	var absolutepos = destpospercent*maxPosition/100;
+	console.log("MoveToPercent(%d) -> MoveToPosition(%d)", destpospercent, absolutepos);
+	spWrite("id="+hwid+":moveto:"+absolutepos.toString()+";");
+};
+
 //------------------------------------------------------------------
 // export
 //------------------------------------------------------------------
 module.exports = {
 	initialize: initialize,
+	isInitialized: spInitialized,
 	setConfig: spSetConfig,
 	setCbAfterOpen: spSetCbAfterOpen,
 	setDirection: setdir,
@@ -208,6 +231,8 @@ module.exports = {
 	directionCounterClockWise: -1,	
 	setSpeedAcceleration: setspeedacl,
 	moveToPosition: moveto,
-	moveToPositionFeedback: movetofeedback
+	moveToPositionFeedback: movetofeedback,
+	moveToPositionPercent: movetopercent,
+	getCurrentPositionPercent: getcurrpospercent
 };
 //------------------------------------------------------------------

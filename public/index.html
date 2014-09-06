@@ -1,0 +1,107 @@
+<!doctype html>  
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Intelligent Windows</title>
+  <link rel="stylesheet" href="stylesheets/reset.css" media="all" />
+  <link rel="stylesheet" href="stylesheets/style.css" media="all" />
+<!--   <link rel='stylesheet' media='screen and (max-width: 700px)' href='stylesheets/small.css' /> -->
+  <link href="stylesheets/small.css" rel="stylesheet" type="text/css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link href='http://fonts.googleapis.com/css?family=Syncopate' rel='stylesheet' type='text/css'>
+  <style type="text/css">
+  </style>
+  <script>
+    var sliderVisible = false;
+    function homeClick () {
+        var sliderdiv = document.getElementById("sliderctrl");
+        if(sliderVisible === true) {
+        	sliderVisible = false;
+        	sliderdiv.style.visibility="hidden";
+        }
+        else {
+        	sliderVisible = true;
+        	sliderdiv.style.visibility="visible";
+        }
+    };
+
+    function updateSlider(slideAmount) {
+    	//alert('slider updated!!!');
+        var sliderDiv = document.getElementById("sliderAmount");
+        sliderDiv.innerHTML = slideAmount;
+        socket.emit('windowctrl', { wid: 'a1', value: slideAmount});
+    }
+
+    function updateSliderSocketIO(slideAmount) {
+
+        var slider = document.getElementById("slide");        
+        slider.value = slideAmount;
+
+        var sliderDiv = document.getElementById("sliderAmount");
+        sliderDiv.innerHTML = slideAmount;
+    }    
+
+    function remapDivCoord() {
+        var img = document.getElementById("home");
+        var width = img.clientWidth;
+        var height = img.clientHeight;
+        var ar = width/height;
+
+        alert('W='+width.toString()+' H='+height.toString()+' AR='+ar.toString());
+        var box = document.getElementById("window01");
+    };
+  </script>
+</head>
+<body>
+  <!--
+  <header>
+    <div>...</div> 
+  </header> 
+  --> 
+  <section>
+    <!--
+    <div><h1>Intelligent Windows</h1></div> 
+    -->
+
+    <div class="wrapper">
+      <img id="home" class="logo" src="images/Home.png" onclick="javascript:homeClick()">
+      <!--
+      <div id="window01" class="block01" onclick="alert('click!!!');">
+        W01
+      </div>
+      -->
+    </div>
+
+  </section>
+
+  <footer>
+    <div id="info">
+    <p class="credits">
+      Nelson Neves | 
+      twitter: <a target="_blank" href="http://twitter.com/botdream">@botdream</a> | 
+      googleplus: <a target="_blank" href="http://plus.google.com/+NelsonNeves">+NelsonNeves</a>
+    </p>
+    </div>
+  </footer>
+
+    <div id="sliderctrl" class="sliderctrl">
+      <input id="slide" class="slider" type="range" min="0" max="100" step="1" value="0" onchange="updateSlider(this.value)">
+      <div id="sliderAmount"></div>​
+    </div>   
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var ioserver = 'http://192.168.1.110';
+    var socket = io(ioserver);
+    socket.on('news', function (data) {
+      console.log(data);
+      socket.emit('my other event', { my: 'data' });
+    });
+
+    socket.on('windowpos', function (data) {
+      console.log(data);
+      updateSliderSocketIO(data.value);
+    });    
+  </script>
+</body>
+</html>

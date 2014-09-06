@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "serialport": "^1.4.6"
+    "serialport": "^1.4.6",
+    "ecstatic": "^0.5.4",
+    "socket.io": "^1.1.0"
   },
   "devDependenices": {},
   "scripts": {
