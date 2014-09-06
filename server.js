@@ -19,13 +19,6 @@ stepmotor.initialize({
 
 
 io.on('connection', function (socket) {
-  /* 
-  // socket.io demo
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-  */
 
   if(stepmotor.isInitialized() === true) {
   	var curpos = stepmotor.getCurrentPositionPercent();
@@ -36,6 +29,7 @@ io.on('connection', function (socket) {
   socket.on('windowctrl', function (data) {
     console.log(data);
     stepmotor.moveToPositionPercent(data.value);
+    socket.broadcast.emit('windowpos', { wid: 'a1', value: data.value });
   });  
 });
 

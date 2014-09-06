@@ -203,8 +203,10 @@ function movetofeedback (destpos, feedback) {
 
 function getcurrpospercent () {
 	spWrite("id="+hwid+":getcurrpos:_;");
+	// async response: reqpos
+
 	// requires callback to be defined
-	var tempValue = 50000;
+	var tempValue = 5000;
 	var ncurpos = tempValue*100/maxPosition;
 
 	return ncurpos;

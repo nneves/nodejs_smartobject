@@ -13,6 +13,9 @@
   </style>
   <script>
     var sliderVisible = false;
+    var sliderTimer;
+    var sliderTimeout = 500;
+
     function homeClick () {
         var sliderdiv = document.getElementById("sliderctrl");
         if(sliderVisible === true) {
@@ -28,8 +31,14 @@
     function updateSlider(slideAmount) {
     	//alert('slider updated!!!');
         var sliderDiv = document.getElementById("sliderAmount");
-        sliderDiv.innerHTML = slideAmount;
-        socket.emit('windowctrl', { wid: 'a1', value: slideAmount});
+        sliderDiv.innerHTML = slideAmount + " %";
+        
+        clearTimeout(sliderTimer);
+    	sliderTimer  = 
+			setTimeout(
+	    		function () {
+					socket.emit('windowctrl', { wid: 'a1', value: slideAmount});
+	    	}, sliderTimeout);
     }
 
     function updateSliderSocketIO(slideAmount) {
@@ -38,8 +47,15 @@
         slider.value = slideAmount;
 
         var sliderDiv = document.getElementById("sliderAmount");
-        sliderDiv.innerHTML = slideAmount;
-    }    
+        sliderDiv.innerHTML = slideAmount + " %";
+    }
+
+    function showSliderTimer() {
+    	setTimeout( function () {
+    		if(sliderVisible === false)
+    			homeClick();
+    	}, 2500);
+    };
 
     function remapDivCoord() {
         var img = document.getElementById("home");
@@ -52,7 +68,7 @@
     };
   </script>
 </head>
-<body>
+<body onload="showSliderTimer();">
   <!--
   <header>
     <div>...</div> 
@@ -85,18 +101,14 @@
   </footer>
 
     <div id="sliderctrl" class="sliderctrl">
-      <input id="slide" class="slider" type="range" min="0" max="100" step="1" value="0" onchange="updateSlider(this.value)">
+      <input id="slide" class="slider" type="range" min="0" max="100" step="1" value="0" onchange="updateSlider(this.value);">
       <div id="sliderAmount"></div>​
     </div>   
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    var ioserver = 'http://192.168.1.110';
+    var ioserver = 'http://'+window.location.host;
     var socket = io(ioserver);
-    socket.on('news', function (data) {
-      console.log(data);
-      socket.emit('my other event', { my: 'data' });
-    });
 
     socket.on('windowpos', function (data) {
       console.log(data);
