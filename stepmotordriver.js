@@ -13,6 +13,8 @@ var flagLowLvlDebug = true;
 var hwid = "a1";
 var maxPosition = 50000; // max number of steps required to open window
 
+var cbGetCurrentPositionPercent = [];
+
 //------------------------------------------------------------------
 // public functions
 //------------------------------------------------------------------
@@ -49,9 +51,11 @@ function initialize (iconfig) {
 	// register serial port on.open callback
 	sp.on('open', function(err) {
     if ( !err )
-    	spFlagInit = true;
+    	//spFlagInit = true; // note: flag will be set in response to board initialization: see callback regexpr
         console.log("[stepmotordriver.js]:Serial Port %s Connected at %d bps!", config.serialport, config.baudrate);
 
+        /*
+        // note: flag will be set in response to board initialization: see callback regexpr
         if (spCBAfterOpen !== undefined) {
         	console.log("[stepmotordriver.js]:Launching SerialPort After Open callback...");
         	spCBAfterOpen();
@@ -59,6 +63,7 @@ function initialize (iconfig) {
         else {
         	console.log("[stepmotordriver.js]:No SerialPort After Open callback defined!");
         }
+        */
 
         // calling StepMotor emulator initializaion messages when using /dev/null
         emulateStepMotorInitMsg();
@@ -137,29 +142,41 @@ function spCBResponse (data) {
 
 	console.log("[stepmotordriver.js]:RECEIVED_DATA: %s\r\n", idata);
 
-/*
-		// NOTE: 
-		// printer temperature data will be triggered in the 'ok' switch
-		// {"response":"ok T:18.8 /0.0 B:0.0 /0.0 @:0"}
-		// need to implement a special case with regex to test this 
-		// specific response and warp it in a {"temperture":idata}; 
-		var pattern = /([a-zA-z@]:)/;
-		if (pattern.test(idata)) {
-			// found temperature response, split data into format:
-			// ["ok ", "T:", "131.3 /0.0 ", "B:", "0.0 /0.0 ", "@:", "0"]
-			var tempdata = idata.split(pattern);
-			var temperature = {
-					"T0": tempdata[2].split("/")[0].replace(" ", ""),
-					"T1": tempdata[2].split("/")[1].replace(" ", ""),
-					"B0": tempdata[4].split("/")[0].replace(" ", ""),
-					"B1": tempdata[4].split("/")[1].replace(" ", ""),
-					"C": tempdata[6].replace(" ", "")
-				};
-			var rescmd2 = {"temperature":temperature};
-			oStream.emit('data', JSON.stringify(rescmd2)+'\r\n\r\n');			
+	// map async callback responses:
+	// tested with: https://www.debuggex.com/
 
-*/
+	// initialization message: <id=a1:ok;
+	var pattern = /(<id=[a-zA-z][0-9]:ok;)/;
+	if (pattern.test(idata)) {
+		
+		if(spCBAfterOpen != undefined && spFlagInit == false)
+			spCBAfterOpen();
 
+		spFlagInit = true;
+	}	
+
+	// getcurrpos: "<id=a1:reqpos=0:ok;"
+	var pattern = /(<id=[a-zA-z][0-9]:reqpos=[0-9]*:ok;)/;
+	if (pattern.test(idata)) {
+		// found temperature response, split data into format:
+		var tempdata = idata.split(pattern);
+		var res1 = tempdata[1].split(':');
+		var res2 = res1[1].split('=');
+		var result = res2[1];
+		console.log("--> getcurrpos=%s", result);
+
+		// verify is callback requires response
+		if(cbGetCurrentPositionPercent.length > 0) {
+
+			// requires callback to be defined
+			var tempValue = parseInt(result, 10);
+			var ncurpos = tempValue*100/maxPosition;
+			console.log("---> cbGetCurrentPositionPercent(%d);\n", ncurpos);
+
+			cbGetCurrentPositionPercent[0](ncurpos);
+			cbGetCurrentPositionPercent.splice(0,1);
+		}
+	}
 };
 
 function emulateStepMotorInitMsg () {
@@ -201,15 +218,15 @@ function movetofeedback (destpos, feedback) {
 	spWrite("id="+hwid+":movetofeedback:"+destpos.toString()+":"+feedback.toString()+";");
 };
 
-function getcurrpospercent () {
+function getcurrpospercent (callback) {
+
+	// add callback to array
+	//console.log("Add object to cbGetCurrentPositionPercent");
+	//console.log(callback.toString());
+	cbGetCurrentPositionPercent.push(callback);
+
 	spWrite("id="+hwid+":getcurrpos:_;");
 	// async response: reqpos
-
-	// requires callback to be defined
-	var tempValue = 5000;
-	var ncurpos = tempValue*100/maxPosition;
-
-	return ncurpos;
 };
 
 // id=a1:movetopercent:100;

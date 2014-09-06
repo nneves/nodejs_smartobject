@@ -17,13 +17,24 @@ stepmotor.initialize({
 	serialport: config.getSerialPort(), 
 	baudrate: config.baudrate});
 
+// set StepMotor initilization callback function
+var cbInit = function () {
+	console.log("----------------------------------------")
+	console.log("            Board Initialized           ");
+	console.log("----------------------------------------\n")
+};
+stepmotor.setCbAfterOpen(cbInit);
 
 io.on('connection', function (socket) {
 
   if(stepmotor.isInitialized() === true) {
-  	var curpos = stepmotor.getCurrentPositionPercent();
-  	console.log("StepMotor Current Position: ", curpos);
-    socket.emit('windowpos', { wid: 'a1', value: curpos });  	
+
+  	var cbfunc = function (curpospercent) {
+      console.log("StepMotor Current Position: ", curpospercent);
+      socket.emit('windowpos', { wid: 'a1', value: curpospercent });  	
+	};
+
+  	stepmotor.getCurrentPositionPercent(cbfunc);
   }
 
   socket.on('windowctrl', function (data) {
