@@ -8,7 +8,7 @@ var app = http.createServer(
 );
 var io = require('socket.io')(app);
 var fs = require('fs');
-app.listen(8080);
+app.listen(config.tcpport);
 
 console.log(config.getSerialPort());
 console.log(config.baudrate);
@@ -44,4 +44,4 @@ io.on('connection', function (socket) {
   });  
 });
 
-console.log('Listening on :8080');
+console.log('Listening on :%d', config.tcpport);
