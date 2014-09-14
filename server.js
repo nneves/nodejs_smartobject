@@ -22,6 +22,9 @@ var cbInit = function () {
 	console.log("----------------------------------------")
 	console.log("            Board Initialized           ");
 	console.log("----------------------------------------\n")
+
+  // set StepMotor Speed and Acceleration
+  stepmotor.setspeedacl(4000,2000);
 };
 stepmotor.setCbAfterOpen(cbInit);
 
