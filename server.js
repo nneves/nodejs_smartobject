@@ -24,7 +24,7 @@ var cbInit = function () {
 	console.log("----------------------------------------\n")
 
   // set StepMotor Speed and Acceleration
-  stepmotor.setspeedacl(4000,2000);
+  //stepmotor.setSpeedAcceleration(6000,2000);
 };
 stepmotor.setCbAfterOpen(cbInit);
 
